@@ -1,0 +1,23 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rg-sudo/angular-ui-kit": ["packages/angular-ui-kit/src/index.ts"],
+      "@rg-sudo/react-ui-kit": ["packages/react-ui-kit/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
