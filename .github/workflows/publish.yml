@@ -26,20 +26,28 @@ jobs:
           node-version: 22
           registry-url: 'https://npm.pkg.github.com'
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Configure .npmrc for GitHub Packages
         run: |
           echo '@rg-sudo:registry=https://npm.pkg.github.com/' >> ~/.npmrc
           echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' >> ~/.npmrc
+
+      # Cache only node_modules
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
+
+      # Cache only .nx
+      - name: Restore Nx local cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('nx.json', 'project.json', '**/project.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
 
       - name: Install dependencies
         run: npm ci
