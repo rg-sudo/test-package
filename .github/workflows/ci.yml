@@ -40,15 +40,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-modules-
 
-      # Cache build output
-      - name: Cache build output
-        uses: actions/cache@v4
-        with:
-          path: dist
-          key: ${{ runner.os }}-dist-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-dist-
-
       - run: npm ci
       - uses: nrwl/nx-set-shas@v4
 
