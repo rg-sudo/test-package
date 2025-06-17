@@ -1,0 +1,52 @@
+name: Release and Publish @rg-sudo Packages
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on tags like v1.0.0
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write     # Needed to tag or create releases (if added later)
+      packages: write     # Required to publish to GitHub Packages
+
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Configure .npmrc for GitHub Packages
+        run: |
+          echo '@rg-sudo:registry=https://npm.pkg.github.com/' >> ~/.npmrc
+          echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' >> ~/.npmrc
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint selected packages
+        run: |
+          npx nx run-many -t lint test build --all --configuration=production
+
+      - name: Publish packages to GitHub Packages
+        run: npx nx release publish
