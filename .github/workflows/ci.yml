@@ -25,23 +25,29 @@ jobs:
       # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
       # Uncomment this line to enable task distribution
       # - run: npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
-
-      
-      # Cache node_modules and .nx cache
-      - uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .nx/cache
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-nx-${{ hashFiles('.nx/cache/**') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-            ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-
       
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+
+      # Cache only node_modules
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
+
+      # Cache only .nx
+      - name: Restore Nx local cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('nx.json', 'project.json', '**/project.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
        
       - run: npm ci --legacy-peer-deps
       - uses: nrwl/nx-set-shas@v4
